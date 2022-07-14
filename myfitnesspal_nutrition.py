@@ -40,14 +40,23 @@ def GetNutritionsList():
     url = "https://www.myfitnesspal.com/food/calorie-chart-nutrition-facts"
     nutritions = [];
     
-    cnxn = pyodbc.connect("Driver={SQL Server Native Client 11.0};"
-                          "Server=DESKTOP-ESDPF32;"
-                          "Database=try9Health;"
-                          "Trusted_Connection=yes;")
+    #cnxn = pyodbc.connect("Driver={SQL Server Native Client 11.0};"
+    #                      "Server=DESKTOP-ESDPF32;"
+    #                      "Database=9Health;"
+    #                      "Trusted_Connection=yes;")
     
+    cnxn = pyodbc.connect("Driver={ODBC Driver 17 for SQL Server};"
+                          "Server=DESKTOP-ESDPF32;"
+                          "Database=9Health;"
+                          'UID=SA;'
+                          'PWD=1Lik39Health!;'
+                          "Trusted_Connection=no;")
+
+
     cursor = cnxn.cursor()
     #cursor.execute('SELECT distinct NameENG FROM IngredientTrans1 where NameENG is not null')
-    cursor.execute('SELECT distinct NameENG FROM IngredientTrans1 where NameENG is not null and NameENG not in (select [key] from myfitnesspal_temp2)')
+    #cursor.execute('SELECT distinct NameENG FROM IngredientTrans1 where NameENG is not null and NameENG not in (select [key] from myfitnesspal_temp2)')
+    cursor.execute('SELECT NameEn FROM ConvertView220714 where NameEn is not null and NameEn not in (select [key] from myfitnesspal_temp1)')
     result_set = cursor.fetchall()
     
     for row in result_set:
@@ -88,6 +97,7 @@ def GetNutritionsList():
             print(len(nutritions));
             for nuti in nutritions:
                 cursor.execute("INSERT INTO myfitnesspal_temp1([key],name,link,isverified) VALUES (?,?,?,?)", (nuti.key, nuti.name, nuti.link, nuti.isverified));
+                cursor.execute("INSERT INTO keepTrackMFP_temp1([key],name,link,isverified) VALUES (?,?,?,?)", (nuti.key, nuti.name, nuti.link, nuti.isverified));
                 cursor.execute("COMMIT");
                 nutritions = [];
         
@@ -99,22 +109,36 @@ def GetNutritionsDetailList():
     baseUrl = "https://www.myfitnesspal.com";
     nutritions = [];
     
-    cnxn = pyodbc.connect("Driver={SQL Server Native Client 11.0};"
+    #cnxn = pyodbc.connect("Driver={SQL Server Native Client 11.0};"
+    #                      "Server=DESKTOP-ESDPF32;"
+    #                      "Database=try9Health;"
+    #                      "Trusted_Connection=yes;")
+    
+    cnxn = pyodbc.connect("Driver={ODBC Driver 17 for SQL Server};"
                           "Server=DESKTOP-ESDPF32;"
-                          "Database=try9Health;"
-                          "Trusted_Connection=yes;")
-    
-    
+                          "Database=9Health;"
+                          'UID=SA;'
+                          'PWD=1Lik39Health!;'
+                          "Trusted_Connection=no;")
+
     cursor = cnxn.cursor()
-    cursor.execute('SELECT * FROM myfitnesspal_temp1 where [key] not in (select [key] FROM myfitnesspal_temp2)');
+    cursor.execute('SELECT * FROM myfitnesspal_temp1 where [key] not in (select [key] FROM IngredientNutrient)');
+    # cursor.execute('SELECT * FROM myfitnesspal_temp1');
+    # cursor.execute('SELECT * FROM ConvertView220714 where [NameEn] not in (select [key] FROM myfitnesspal_temp1)');
+
     result_set = cursor.fetchall()
     
     for row in result_set:
+        # Get key, name, link, is_verified
         nution = Nutrition(row[0], row[1], row[2], row[3]);
         url = baseUrl + nution.link;
         payload={}
+        #headers = {
+        #  'Cookie': '_mfp_session=eFJVTVpCQ3l4UGNyYXVnVHpkTWR1Q3pTRGtLUDRjY1FOQzFmaWEwcDJuaExxekpMS3dzcVJCZmE0ZGVXUFlpeXpFNnRwR0tXTVZPQWw0Mmgyb01RYzQ4ZkhxRkRXallCaS9kc012K1lLK1RJeW1CZE5KRE9UdnY0NDcvUUFSY3BSZlJaVFVGK1p5eXNBcW81dXR2ZDhGSXhLYWpybFZXbG1ISEk5Vk91UkZ6YmNsbUQvakIyZVBmVG51MzZ3ZGRBYnZIOWhTWXk0ZUNSQ0tzY0ZSdFBjUT09LS1yYjhDdy81Z3hxaFNtRlg2c3NtMEl3PT0%3D--19d8eb7122ec3a7e518e041f11933c0197875340; known_user=156409154; last_login_date=2022-02-20'
+        #}
+
         headers = {
-          'Cookie': '_mfp_session=eFJVTVpCQ3l4UGNyYXVnVHpkTWR1Q3pTRGtLUDRjY1FOQzFmaWEwcDJuaExxekpMS3dzcVJCZmE0ZGVXUFlpeXpFNnRwR0tXTVZPQWw0Mmgyb01RYzQ4ZkhxRkRXallCaS9kc012K1lLK1RJeW1CZE5KRE9UdnY0NDcvUUFSY3BSZlJaVFVGK1p5eXNBcW81dXR2ZDhGSXhLYWpybFZXbG1ISEk5Vk91UkZ6YmNsbUQvakIyZVBmVG51MzZ3ZGRBYnZIOWhTWXk0ZUNSQ0tzY0ZSdFBjUT09LS1yYjhDdy81Z3hxaFNtRlg2c3NtMEl3PT0%3D--19d8eb7122ec3a7e518e041f11933c0197875340; known_user=156409154; last_login_date=2022-02-20'
+          'Cookie': '_mfp_session=bGQxTXpzMUtlZGJMbUtZVG02QWZVZlNTNUp4OFYzL2R2TFV6S3VoNzZVOXkyZGY0TlBkTzQ2U2l5QXl5VVdmeVN5TDFkVHJPMUVYUVg4cm12WTRNNDRlaHBNMnkwRVRuUjB6dWZHeE9TOHFlcHI2T2l3ZGxrKzcwdDhuZmFXSlRhR2VKSFdkQWZ4YnQxempWbHp5M2E4VE95VTJXZ0x3OVBQS3FlODEzVFdzRUZMNVYwQkg5ci9TVnJ6ODdMODZxVEFUVEFVd1BsZXAvTEtkVGxsVWl5aXVtcWo3VVBFc0VYTDBDQ3RDcDVzaWFsTThrWWNXbEl0b2tWRW1DWjJOdTgzRGtmaWRHTHlJdGE4TXdqKy85TU1NTGthSWhtQzg0L0VnVTE0SmpBaVFGTVFLd1VlVkt1MzAyU3J5Mkd2elU1Vmk5WWh1Vis4UGRrUG9RK3VFQStyWElUbUNkWkJnaWpNVk1MOGlLblI0cTF6ZCtRYityVkNMaVRTVmoxMGw1K2FOcWVaZnIwWXVycjJPSjdRZVNqUT09LS1lMUJIOG91eFF4QjZmOEN4UFd5bEt3PT0=--fdf45da0a1bc3703a78bfc07b71d03a25dcfa143; known_user=156409154; last_login_date=2022-06-28'
         }
         
         response = requests.request("POST", url, headers=headers, data=payload)
@@ -164,7 +188,7 @@ def GetNutritionsDetailList():
         if(len(nutritions) >= 1):
             print(len(nutritions));
             for nuti in nutritions:
-                cursor.execute("INSERT INTO myfitnesspal_temp2([key],name,link,isverified,unit,unitId,calories,sodium,toalFat,potassium,saturated,totalCarbs,polyunsaturated,dietaryFiber,monounsaturated,sugars,trans,protein,cholesterol,vitaminA,calcium,vitaminC,iron) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", 
+                cursor.execute("INSERT INTO tryIngredientNutrient([key],name,link,isverified,unit,unitId,calories,sodium,toalFat,potassium,saturated,totalCarbs,polyunsaturated,dietaryFiber,monounsaturated,sugars,trans,protein,cholesterol,vitaminA,calcium,vitaminC,iron) VALUES (?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?,?)", 
                                (nuti.key, nuti.name, nuti.link, nuti.isverified,nuti.unit,nuti.unitId,nuti.calories,nuti.sodium,nuti.toalFat,nuti.potassium,nuti.saturated,nuti.totalCarbs,nuti.polyunsaturated,nuti.dietaryFiber,nuti.monounsaturated,nuti.sugars,nuti.trans,nuti.protein,nuti.cholesterol,nuti.vitaminA,nuti.calcium,nuti.vitaminC,nuti.iron));
                 cursor.execute("COMMIT");
                 nutritions = [];
@@ -173,7 +197,7 @@ def GetNutritionsDetailList():
     cnxn.close();
 
 if __name__ == "__main__":
-    #GetNutritionsList();
+    # GetNutritionsList();
     GetNutritionsDetailList();
      
 
