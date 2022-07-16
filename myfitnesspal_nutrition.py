@@ -56,7 +56,8 @@ def GetNutritionsList():
     cursor = cnxn.cursor()
     #cursor.execute('SELECT distinct NameENG FROM IngredientTrans1 where NameENG is not null')
     #cursor.execute('SELECT distinct NameENG FROM IngredientTrans1 where NameENG is not null and NameENG not in (select [key] from myfitnesspal_temp2)')
-    cursor.execute('SELECT NameEn FROM ConvertView220714 where NameEn is not null and NameEn not in (select [key] from myfitnesspal_temp1)')
+    # cursor.execute('SELECT NameEn FROM ConvertView220714 where NameEn is not null and NameEn not in (select [key] from myfitnesspal_temp1)')
+    cursor.execute('SELECT NameEn FROM ConvertView220714 where NameEn is not null and NameEn not in (select [key] from tryIngredientNutrient))')
     result_set = cursor.fetchall()
     
     for row in result_set:
