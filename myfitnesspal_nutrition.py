@@ -1,3 +1,4 @@
+# from curses import window
 import requests
 import json
 import pyodbc 
@@ -57,7 +58,7 @@ def GetNutritionsList():
     #cursor.execute('SELECT distinct NameENG FROM IngredientTrans1 where NameENG is not null')
     #cursor.execute('SELECT distinct NameENG FROM IngredientTrans1 where NameENG is not null and NameENG not in (select [key] from myfitnesspal_temp2)')
     # cursor.execute('SELECT NameEn FROM ConvertView220714 where NameEn is not null and NameEn not in (select [key] from myfitnesspal_temp1)')
-    cursor.execute('SELECT NameEn FROM ConvertView220714 where NameEn is not null and NameEn not in (select [key] from tryIngredientNutrient))')
+    cursor.execute('SELECT NameEn FROM ConvertView220714 where NameEn is not null and NameEn not in (select [key] from tryIngredientNutrient)')
     result_set = cursor.fetchall()
     
     for row in result_set:
@@ -76,6 +77,9 @@ def GetNutritionsList():
         response = requests.request("POST", url, headers=headers, data=payload);
         soup = BeautifulSoup(response.text, 'html.parser');
         elements = soup.select("#matching > .matched-food > .search-title-container");
+        # newWindow = window.open();
+        # newWindow.document.write("ohai");
+        
         if(len(elements) == 0):
             continue;
         nutri_temps = [];
@@ -123,7 +127,8 @@ def GetNutritionsDetailList():
                           "Trusted_Connection=no;")
 
     cursor = cnxn.cursor()
-    cursor.execute('SELECT * FROM myfitnesspal_temp1 where [key] not in (select [key] FROM IngredientNutrient)');
+    cursor.execute('SELECT * FROM myfitnesspal_temp1 where [key] not in (select [key] FROM tryIngredientNutrient)');
+    # cursor.execute('SELECT * FROM ConvertView220714 where [NameEn] not in (select [key] FROM tryIngredientNutrient)');
     # cursor.execute('SELECT * FROM myfitnesspal_temp1');
     # cursor.execute('SELECT * FROM ConvertView220714 where [NameEn] not in (select [key] FROM myfitnesspal_temp1)');
 
@@ -198,8 +203,8 @@ def GetNutritionsDetailList():
     cnxn.close();
 
 if __name__ == "__main__":
-    # GetNutritionsList();
-    GetNutritionsDetailList();
+    GetNutritionsList();
+    # GetNutritionsDetailList();
      
 
 
