@@ -88,28 +88,30 @@ def GetNutritionsList():
             name = item.getText();
             link = item['href'];
             isverified = row2.find('div', class_='verified') != None;
-            if(name.lower() == row[0].lower() and isverified):
-                    nutri_temps.append(Nutrition(row[0], name, link, isverified));
-                    break;
-                
-        if(len(nutri_temps) == 0 and len(elements) > 0):
-            for row3 in elements[:5]:
-                item3 = row3.find('a', class_='search');
-                name3 = item3.getText();
-                link3 = item3['href'];
-                if(name3.lower() == row[0].lower()):
-                    nutri_temps.append(Nutrition(row[0], name3, link3, False));
-                    break;
-            #elem = elements[0].find('a', class_='search');
-            #nutri_temps.append(Nutrition(row[0], elem.getText(), elem['href'], False));
-            
+            if(name.lower() == row[0].lower() and isverified is True):
+                nutri_temps.append(Nutrition(row[0], name, link, isverified))
+            elif (name.lower() == row[0].lower() and isverified is False):
+                nutri_temps.append(Nutrition(row[0], name, link, False))
+                break
+
+        #    elem = elements[0].find('a', class_='search');
+        #    nutri_temps.append(Nutrition(row[0], elem.getText(), elem['href'], False));
+
+        #for row3 in elements[:5]:
+        #    item = row3.find('a', class_='search')
+        #    name = item.getText()
+        #    link = item['href']
+
+            #if (name.lower() == row[0].lower()):
+            #    nutri_temps.append(Nutrition(row[0], name, link, False))
+            #    break
 
         nutritions.extend(nutri_temps);
-        
+
         if(len(nutritions) >= 1):
             print(len(nutritions));
             for nuti in nutritions:
-                cursor.execute("INSERT INTO myfitnesspal_temp1([key],name,link,isverified) VALUES (?,?,?,?)", (nuti.key, nuti.name, nuti.link, nuti.isverified));
+                #cursor.execute("INSERT INTO myfitnesspal_temp1([key],name,link,isverified) VALUES (?,?,?,?)", (nuti.key, nuti.name, nuti.link, nuti.isverified));
                 cursor.execute("INSERT INTO keepTrackMFP_temp1([key],name,link,isverified) VALUES (?,?,?,?)", (nuti.key, nuti.name, nuti.link, nuti.isverified));
                 cursor.execute("COMMIT");
                 nutritions = [];
