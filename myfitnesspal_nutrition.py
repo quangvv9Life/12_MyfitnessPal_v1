@@ -64,7 +64,7 @@ def GetNutritionsList():
     for row in result_set:
         payload = json.dumps({
           "utf8": "✓",
-          "authenticity_token": "l2Rb4FU3PKiXURFfqU5ZLg5Agld1eHAdbf8ab4l6TXRQzmaB7i3jZZpB0DF+BeTZJdqGwEfoReaI4aOtp9o5tg==",
+           "authenticity_token": "l2Rb4FU3PKiXURFfqU5ZLg5Agld1eHAdbf8ab4l6TXRQzmaB7i3jZZpB0DF+BeTZJdqGwEfoReaI4aOtp9o5tg==",
           "meal": "",
           "date": "2022-02-20",
           "search": row[0]
@@ -79,7 +79,7 @@ def GetNutritionsList():
         elements = soup.select("#matching > .matched-food > .search-title-container");
         # newWindow = window.open();
         # newWindow.document.write("ohai");
-        
+
         if(len(elements) == 0):
             continue;
         nutri_temps = [];
@@ -93,9 +93,17 @@ def GetNutritionsList():
                     break;
                 
         if(len(nutri_temps) == 0 and len(elements) > 0):
-            elem = elements[0].find('a', class_='search');
-            nutri_temps.append(Nutrition(row[0], elem.getText(), elem['href'], False));
+            for row3 in elements[:5]:
+                item3 = row3.find('a', class_='search');
+                name3 = item3.getText();
+                link3 = item3['href'];
+                if(name3.lower() == row[0].lower()):
+                    nutri_temps.append(Nutrition(row[0], name3, link3, False));
+                    break;
+            #elem = elements[0].find('a', class_='search');
+            #nutri_temps.append(Nutrition(row[0], elem.getText(), elem['href'], False));
             
+
         nutritions.extend(nutri_temps);
         
         if(len(nutritions) >= 1):
