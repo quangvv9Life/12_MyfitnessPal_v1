@@ -58,7 +58,7 @@ def GetNutritionsList():
     #cursor.execute('SELECT distinct NameENG FROM IngredientTrans1 where NameENG is not null')
     #cursor.execute('SELECT distinct NameENG FROM IngredientTrans1 where NameENG is not null and NameENG not in (select [key] from myfitnesspal_temp2)')
     # cursor.execute('SELECT NameEn FROM ConvertView220714 where NameEn is not null and NameEn not in (select [key] from myfitnesspal_temp1)')
-    cursor.execute('SELECT NameEn FROM ConvertView220714 where NameEn is not null and NameEn not in (select [key] from tryIngredientNutrient)')
+    cursor.execute('SELECT NameEn FROM ConvertView220714 where NameEn is not null and NameEn not in (select [key] from keepTrackMFP_temp1)')
     result_set = cursor.fetchall()
     
     for row in result_set:
@@ -90,21 +90,23 @@ def GetNutritionsList():
             isverified = row2.find('div', class_='verified') != None;
             if(name.lower() == row[0].lower() and isverified is True):
                 nutri_temps.append(Nutrition(row[0], name, link, isverified))
-            elif (name.lower() == row[0].lower() and isverified is False):
-                nutri_temps.append(Nutrition(row[0], name, link, False))
                 break
-
-        #    elem = elements[0].find('a', class_='search');
-        #    nutri_temps.append(Nutrition(row[0], elem.getText(), elem['href'], False));
-
-        #for row3 in elements[:5]:
-        #    item = row3.find('a', class_='search')
-        #    name = item.getText()
-        #    link = item['href']
-
-            #if (name.lower() == row[0].lower()):
+            #elif (name.lower() == row[0].lower() and isverified is False):
             #    nutri_temps.append(Nutrition(row[0], name, link, False))
             #    break
+
+        if(len(nutri_temps) == 0 and len(elements) > 0):
+            for row3 in elements[:5]:
+                item = row3.find('a', class_='search')
+                name = item.getText()
+                link = item['href']
+                if (name.lower() == row[0].lower()):
+                    nutri_temps.append(Nutrition(row[0], name, link, False))
+                    break
+            #elem = elements[0].find('a', class_='search');
+            #nutri_temps.append(Nutrition(row[0], elem.getText(), elem['href'], False));
+
+
 
         nutritions.extend(nutri_temps);
 
@@ -112,6 +114,7 @@ def GetNutritionsList():
             print(len(nutritions));
             for nuti in nutritions:
                 #cursor.execute("INSERT INTO myfitnesspal_temp1([key],name,link,isverified) VALUES (?,?,?,?)", (nuti.key, nuti.name, nuti.link, nuti.isverified));
+
                 cursor.execute("INSERT INTO keepTrackMFP_temp1([key],name,link,isverified) VALUES (?,?,?,?)", (nuti.key, nuti.name, nuti.link, nuti.isverified));
                 cursor.execute("COMMIT");
                 nutritions = [];
@@ -137,7 +140,8 @@ def GetNutritionsDetailList():
                           "Trusted_Connection=no;")
 
     cursor = cnxn.cursor()
-    cursor.execute('SELECT * FROM myfitnesspal_temp1 where [key] not in (select [key] FROM tryIngredientNutrient)');
+    #cursor.execute('SELECT * FROM myfitnesspal_temp1 where [key] not in (select [key] FROM tryIngredientNutrient)');
+    cursor.execute('SELECT * FROM keepTrackMFP_temp1 where [key] not in (select [key] FROM tryIngredientNutrient)');
     # cursor.execute('SELECT * FROM ConvertView220714 where [NameEn] not in (select [key] FROM tryIngredientNutrient)');
     # cursor.execute('SELECT * FROM myfitnesspal_temp1');
     # cursor.execute('SELECT * FROM ConvertView220714 where [NameEn] not in (select [key] FROM myfitnesspal_temp1)');
@@ -213,8 +217,8 @@ def GetNutritionsDetailList():
     cnxn.close();
 
 if __name__ == "__main__":
-    GetNutritionsList();
-    # GetNutritionsDetailList();
+    #GetNutritionsList();
+     GetNutritionsDetailList();
      
 
 

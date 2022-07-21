@@ -1,7 +1,9 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\env",
+    "\\venv"
   ],
-  "SelectedNode": "\\myfitnesspal_nutrition.py",
+  "SelectedNode": "\\check_myfitnesspal.py",
   "PreviewInSolutionExplorer": false
 }
