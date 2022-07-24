@@ -1,7 +1,8 @@
 {
   "ExpandedNodes": [
-    ""
+    "",
+    "\\venv"
   ],
-  "SelectedNode": "\\myfitnesspal_nutrition.py",
+  "SelectedNode": "\\ParsingPdf.py",
   "PreviewInSolutionExplorer": false
 }
