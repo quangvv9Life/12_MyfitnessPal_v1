@@ -6,6 +6,7 @@ from bs4 import BeautifulSoup
 import openpyxl
 import array as arr
 import pandas as pd
+import csv
 
 class Nutrition:
     def __init__(self, key, name, link, isverified): 
@@ -71,11 +72,14 @@ def GetNutritionsList():
     #cell_obj = sheet_obj.cell(row = 65, column = 1)
     cell_obj = sheet_obj['A']
     result_set = []
-    # Control iteration cell
-    start_cell = 60
+    # Control iteration cell - counting from 0th position
+    # start_cell = 60
+    # start_cell = 178
+    start_cell = 73
     for x in range(start_cell,len(cell_obj)):
     # for x in range(len(cell_obj)):
         result_set.append(cell_obj[x].value)
+        # print(result_set)
         tuple_set = zip(result_set)
 
     for row in tuple_set:
@@ -92,8 +96,8 @@ def GetNutritionsList():
         }
         
         response = requests.request("POST", url, headers=headers, data=payload);
-        soup = BeautifulSoup(response.text, 'html.parser');
-        elements = soup.select("#matching > .matched-food > .search-title-container");
+        soup = BeautifulSoup(response.text, 'html.parser')
+        elements = soup.select("#matching > .matched-food > .search-title-container")
 
         nutri_temps = []
         for row2 in elements[:15]:
@@ -104,15 +108,37 @@ def GetNutritionsList():
             nutri_temps.append(Nutrition(row[0], name, link, isverified))
             my_dict = Nutrition(row[0], name, link, isverified).__dict__
             df = pd.DataFrame(my_dict, index=[0])
-            df2 =  df.append(my_dict)
-            # df['x'] = x
-            print(df2)
+            print(df.iloc[0])
+            # Write to MFP.csv for checking later
+            haeder = ['key', 'name', 'link', 'isverified']
+            with open('C:\\Users\\9Health\\Documents\\MFP.csv','a', newline='') as f1:
+                # writer=csv.writer(f1, delimiter='\t',lineterminator='\n',)
+                writer=csv.DictWriter(f1, fieldnames=haeder)
+                # print(type(my_dict))
+                print(my_dict)
+                writer.writeheader()
+                # writer.writerows(my_dict)
+                    # writer.writerows('\n')
+                for key, value in my_dict.items():
+                    writer.writerow({"key"        : row[0].encode("utf-8"),
+                                     "name"       : name.encode("utf-8") ,
+                                     "link"       : link,
+                                     "isverified" : isverified  })
+
             print("=" * 200)
             print(df.to_markdown())
-            # print(df2)
         
-        nutritions.extend(nutri_temps)
-        nutritions = []
+        # nutritions.extend(nutri_temps)
+        # nutritions = []
+
+            # Write to MFP.csv for checking later
+            # with open('C:\\Users\\9Health\\Documents\\MFP.csv','w') as f1:
+            #     writer=csv.writer(f1, delimiter='\t',lineterminator='\n',)
+            #     for i, row in enumerate(df.loc[0]):
+            #         data = [[i, df.loc[0]]]
+            #         writer.writerows(data)
+            #         writer.writerows('\n')                    
+            
 
     #     if(len(elements) == 0):
     #         continue;
